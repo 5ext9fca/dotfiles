@@ -4,7 +4,7 @@ Each platform has one explicit preset and uses only its applicable system packag
 
 Active dependencies include WezTerm, Fish, Zellij, Helix, Starship, mise, zoxide, Ruff, and the Rust/C/C++ language tools used by Helix. Ruby, OpenJDK, .NET, and Flutter remain optional and are not installed.
 
-Existing configuration targets are moved into a timestamped directory under `~/.dotfiles-backups/` before links are created. Changing the login shell may ask for a password.
+Existing configuration targets are moved into a timestamped directory under `~/.dotfiles-backups/` before hard links are created. The repository and configuration directory must be on the same filesystem. Changing the login shell may ask for a password.
 
 ## macOS preset
 
@@ -21,7 +21,7 @@ Bootstrap and package management:
 ./install/macos.sh --dry-run
 ```
 
-On a factory-fresh system, the first run requests Xcode Command Line Tools and then exits. Complete the macOS installer dialog and rerun the script; it will bootstrap Homebrew, install all active dependencies, link WezTerm, Fish, Zellij, and Helix under `${XDG_CONFIG_HOME:-$HOME/.config}`, register Homebrew Fish in `/etc/shells`, and run `chsh`.
+On a factory-fresh system, the first run requests Xcode Command Line Tools and then exits. Complete the macOS installer dialog and rerun the script; it will bootstrap Homebrew, install all active dependencies, hard-link WezTerm, Fish, Zellij, and Helix files under `${XDG_CONFIG_HOME:-$HOME/.config}`, register Homebrew Fish in `/etc/shells`, and run `chsh`.
 
 ## Windows preset
 
@@ -61,4 +61,4 @@ All dependencies are requested directly through Pacman; no secondary language-pa
 
 ## Dry-run behavior
 
-Dry-run prints system bootstrapping, package installation, backups, links, `/etc/shells`, environment, and `chsh` operations without applying them. Distribution detection and prerequisite checks still run.
+Dry-run prints system bootstrapping, package installation, backups, hard links, `/etc/shells`, environment, and `chsh` operations without applying them. Distribution detection and prerequisite checks still run.

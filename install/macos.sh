@@ -13,7 +13,7 @@ usage() {
 Usage: ./install/macos.sh [--dry-run]
 
 Bootstraps a factory-fresh macOS installation with Xcode Command Line Tools
-and Homebrew, installs all active dotfiles dependencies, links the four
+and Homebrew, installs all active dotfiles dependencies, hard-links the four
 configurations, then changes the shell to Fish.
 EOF
 }
@@ -81,34 +81,6 @@ find_homebrew() {
   fi
 }
 
-link_config() {
-  local component="$1" source="$2" target="$3"
-  local backup_target
-
-  [[ -e "$source" ]] || { printf 'error: missing source: %s\n' "$source" >&2; exit 1; }
-
-  if [[ "$source" == "$target" ]]; then
-    printf '%s: source is already the target\n' "$component"
-    return
-  fi
-
-  if [[ -L "$target" && "$(readlink "$target")" == "$source" ]]; then
-    printf '%s: already linked\n' "$component"
-    return
-  fi
-
-  if [[ -e "$target" || -L "$target" ]]; then
-    backup_target="$backup_root/${target#/}"
-    run mkdir -p "$(dirname -- "$backup_target")"
-    run mv "$target" "$backup_target"
-    printf '%s: backed up existing target to %s\n' "$component" "$backup_target"
-  fi
-
-  run mkdir -p "$(dirname -- "$target")"
-  run ln -s "$source" "$target"
-  printf '%s: linked %s -> %s\n' "$component" "$target" "$source"
-}
-
 set_default_shell() {
   local fish_path="$1"
 
@@ -166,10 +138,12 @@ run "$brew_cmd" install "${formulae[@]}"
 run "$brew_cmd" install --cask wezterm
 run "$brew_prefix/opt/rustup/bin/rustup" toolchain install stable --profile minimal --component rustfmt,rust-analyzer
 
-link_config wezterm "$repo_root/wezterm" "$config_home/wezterm"
-link_config fish "$repo_root/fish" "$config_home/fish"
-link_config zellij "$repo_root/zellij" "$config_home/zellij"
-link_config helix "$repo_root/helix" "$config_home/helix"
+apply_args=()
+if (( dry_run )); then
+  apply_args+=(--dry-run)
+fi
+XDG_CONFIG_HOME="$config_home" DOTFILES_BACKUP_DIR="$backup_root" \
+  "$repo_root/apply/apply.sh" "${apply_args[@]}"
 
 set_default_shell "$brew_prefix/bin/fish"
 

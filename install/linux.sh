@@ -15,8 +15,8 @@ usage() {
 Usage: ./install/linux.sh [--dry-run] [--yes]
 
 Supports Arch Linux and compatible Arch-based distributions, installs active
-dotfiles dependencies with Pacman, links configurations, and changes the login
-shell to Fish. No package manager is bootstrapped.
+dotfiles dependencies with Pacman, hard-links configurations, and changes the
+login shell to Fish. No package manager is bootstrapped.
 
 Internal Windows preset: --wsl-arch requires Arch Linux and skips WezTerm.
 EOF
@@ -88,34 +88,6 @@ run() {
   fi
 }
 
-link_config() {
-  local component="$1" source="$2" target="$3"
-  local backup_target
-
-  [[ -e "$source" ]] || { printf 'error: missing source: %s\n' "$source" >&2; exit 1; }
-
-  if [[ "$source" == "$target" ]]; then
-    printf '%s: source is already the target\n' "$component"
-    return
-  fi
-
-  if [[ -L "$target" && "$(readlink "$target")" == "$source" ]]; then
-    printf '%s: already linked\n' "$component"
-    return
-  fi
-
-  if [[ -e "$target" || -L "$target" ]]; then
-    backup_target="$backup_root/${target#/}"
-    run mkdir -p "$(dirname -- "$backup_target")"
-    run mv "$target" "$backup_target"
-    printf '%s: backed up existing target to %s\n' "$component" "$backup_target"
-  fi
-
-  run mkdir -p "$(dirname -- "$target")"
-  run ln -s "$source" "$target"
-  printf '%s: linked %s -> %s\n' "$component" "$target" "$source"
-}
-
 set_default_shell() {
   local fish_path
   fish_path="$(command -v fish 2>/dev/null || printf '/usr/bin/fish')"
@@ -148,12 +120,15 @@ install_packages() {
 
 install_packages
 
-if (( ! wsl_arch_mode )); then
-  link_config wezterm "$repo_root/wezterm" "$config_home/wezterm"
+apply_args=()
+if (( dry_run )); then
+  apply_args+=(--dry-run)
 fi
-link_config fish "$repo_root/fish" "$config_home/fish"
-link_config zellij "$repo_root/zellij" "$config_home/zellij"
-link_config helix "$repo_root/helix" "$config_home/helix"
+if (( wsl_arch_mode )); then
+  apply_args+=(fish zellij helix)
+fi
+XDG_CONFIG_HOME="$config_home" DOTFILES_BACKUP_DIR="$backup_root" \
+  "$repo_root/apply/apply.sh" "${apply_args[@]}"
 
 set_default_shell
 

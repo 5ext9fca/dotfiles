@@ -14,9 +14,9 @@ usage() {
   cat <<'EOF'
 Usage: ./install/linux.sh [--dry-run] [--yes]
 
-Detects and confirms the current Linux distribution, installs active dotfiles
-dependencies with that distribution's package manager, links configurations,
-and changes the login shell to Fish. No package manager is bootstrapped.
+Supports Arch Linux and compatible Arch-based distributions, installs active
+dotfiles dependencies with Pacman, links configurations, and changes the login
+shell to Fish. No package manager is bootstrapped.
 
 Internal Windows preset: --wsl-arch requires Arch Linux and skips WezTerm.
 EOF
@@ -41,6 +41,7 @@ done
 source /etc/os-release
 distro_id="${ID,,}"
 distro_like="${ID_LIKE:-}"
+distro_like="${distro_like,,}"
 distro_name="${PRETTY_NAME:-$ID}"
 
 if (( wsl_arch_mode )) && [[ "$distro_id" != "arch" ]]; then
@@ -48,13 +49,23 @@ if (( wsl_arch_mode )) && [[ "$distro_id" != "arch" ]]; then
   exit 1
 fi
 
+case "$distro_id:$distro_like" in
+  arch:*|manjaro:*|*:arch*) ;;
+  *)
+    printf 'error: unsupported Linux distribution: %s; only Arch-based distributions are supported\n' "$distro_name" >&2
+    exit 1
+    ;;
+esac
+
+command -v pacman >/dev/null 2>&1 || { printf 'error: pacman not found\n' >&2; exit 1; }
+
 printf 'Detected Linux distribution: %s (ID=%s)\n' "$distro_name" "$distro_id"
 if (( ! assume_yes )); then
   [[ -t 0 ]] || {
     printf 'error: interactive distribution confirmation required; use --yes to confirm\n' >&2
     exit 1
   }
-  read -r -p "Use this distribution's package manager? [y/N] " confirmation
+  read -r -p "Install dependencies with Pacman? [y/N] " confirmation
   [[ "$confirmation" == "y" || "$confirmation" == "Y" ]] || {
     printf 'Installation cancelled.\n'
     exit 1
@@ -124,7 +135,7 @@ set_default_shell() {
   fi
 }
 
-install_arch_packages() {
+install_packages() {
   local packages=(
     fish zellij helix starship mise zoxide ruff
     rust rust-analyzer clang less
@@ -135,56 +146,7 @@ install_arch_packages() {
   run sudo pacman -Syu --needed --noconfirm "${packages[@]}"
 }
 
-install_apt_packages() {
-  local packages=(
-    fish zellij helix starship mise zoxide ruff
-    rustc rustfmt rust-analyzer clang clang-format less
-  )
-  (( wsl_arch_mode )) || packages+=(wezterm)
-  run sudo apt-get update
-  run sudo apt-get install -y "${packages[@]}"
-}
-
-install_dnf_packages() {
-  local packages=(
-    fish zellij helix starship mise zoxide ruff
-    rust cargo rustfmt rust-analyzer clang clang-tools-extra less
-  )
-  (( wsl_arch_mode )) || packages+=(wezterm)
-  run sudo dnf install -y "${packages[@]}"
-}
-
-install_zypper_packages() {
-  local packages=(
-    fish zellij helix starship mise zoxide ruff
-    rust cargo rustfmt rust-analyzer clang clang-tools less
-  )
-  (( wsl_arch_mode )) || packages+=(wezterm)
-  run sudo zypper --non-interactive install "${packages[@]}"
-}
-
-case "$distro_id:$distro_like" in
-  arch:*|manjaro:*)
-    command -v pacman >/dev/null 2>&1 || { printf 'error: pacman not found\n' >&2; exit 1; }
-    install_arch_packages
-    ;;
-  debian:*|ubuntu:*|*:debian*)
-    command -v apt-get >/dev/null 2>&1 || { printf 'error: apt-get not found\n' >&2; exit 1; }
-    install_apt_packages
-    ;;
-  fedora:*|rhel:*|centos:*|*:fedora*)
-    command -v dnf >/dev/null 2>&1 || { printf 'error: dnf not found\n' >&2; exit 1; }
-    install_dnf_packages
-    ;;
-  opensuse*:*|sles:*|*:suse*)
-    command -v zypper >/dev/null 2>&1 || { printf 'error: zypper not found\n' >&2; exit 1; }
-    install_zypper_packages
-    ;;
-  *)
-    printf 'error: unsupported Linux distribution: %s\n' "$distro_name" >&2
-    exit 1
-    ;;
-esac
+install_packages
 
 if (( ! wsl_arch_mode )); then
   link_config wezterm "$repo_root/wezterm" "$config_home/wezterm"

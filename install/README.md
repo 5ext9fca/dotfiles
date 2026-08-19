@@ -45,11 +45,11 @@ The Windows host contains only WezTerm and `.wezterm.lua`. WinGet installs WezTe
 
 Fish, Zellij, Helix, Starship, mise, zoxide, Ruff, and the language toolchains are installed inside Arch WSL. Fish becomes the WSL login shell. No native Windows Helix or Zellij configuration is created.
 
-## Linux preset
+## Arch Linux preset
 
-Baseline: an already installed Linux distribution. The script does not install Homebrew, Linuxbrew, another package manager, or general build prerequisites.
+Baseline: an already installed Arch Linux, Manjaro, or compatible Arch-based distribution with Pacman. The script does not bootstrap Pacman or install general system prerequisites.
 
-The script reads `/etc/os-release`, displays the detected distribution, and requires confirmation before package installation. Use `--yes` only for a previously confirmed unattended run.
+The script reads `/etc/os-release`, rejects non-Arch-based distributions, and requires confirmation before package installation. Use `--yes` only for a previously confirmed unattended run.
 
 ```sh
 ./install/linux.sh
@@ -57,14 +57,7 @@ The script reads `/etc/os-release`, displays the detected distribution, and requ
 ./install/linux.sh --yes
 ```
 
-Supported distribution families and managers:
-
-- Arch/Manjaro — Pacman
-- Debian/Ubuntu — APT
-- Fedora/RHEL/CentOS — DNF
-- openSUSE/SLES — Zypper
-
-All dependencies are requested directly through the detected distribution manager; no secondary language-package manager is used.
+All dependencies are requested directly through Pacman; no secondary language-package manager is used.
 
 ## Dry-run behavior
 

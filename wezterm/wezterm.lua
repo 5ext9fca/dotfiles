@@ -36,7 +36,6 @@ end
 
 if is_macos then
   config.macos_window_background_blur = 20
-  config.default_prog = { '/opt/homebrew/bin/fish', '-l' }
 end
 
 return config

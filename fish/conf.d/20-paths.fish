@@ -11,7 +11,9 @@ if test (uname) = Darwin
 end
 
 # Build paths dynamically so Homebrew formula upgrades do not pin versions.
-set -l managed_paths $HOME/.local/bin
+set -l managed_paths \
+    $HOME/.local/bin \
+    $HOME/.cargo/bin
 
 if test (uname) = Darwin; and command -q brew
     for formula in openjdk rustup llvm

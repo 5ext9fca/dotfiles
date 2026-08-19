@@ -7,13 +7,13 @@ local is_windows = target:find("windows") ~= nil
 local is_macos   = target:find("apple") ~= nil
 local is_linux   = target:find("linux") ~= nil
 
+
 config.font = wezterm.font_with_fallback({
   "JetBrains Mono",
-  "Symbols Nerd Font Mono",
 })
-config.font_size = 13.0
+config.font_size = 14.0
 config.color_scheme = "Tokyo Night"
-config.window_background_opacity = 0.5
+config.window_background_opacity = 0.9
 
 config.enable_tab_bar = true
 config.hide_tab_bar_if_only_one_tab = true
@@ -35,8 +35,8 @@ if is_windows then
 end
 
 if is_macos then
-  config.font_size = 14.0
   config.macos_window_background_blur = 20
+  config.default_prog = { '/opt/homebrew/bin/fish', '-l' }
 end
 
 return config

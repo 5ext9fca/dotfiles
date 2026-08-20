@@ -23,9 +23,17 @@ config.window_padding = {
 }
 
 config.scrollback_lines = 10000
-config.initial_cols = 120
-config.initial_rows = 40
+-- config.initial_cols = 120
+-- config.initial_rows = 40
+
 config.window_close_confirmation = "NeverPrompt"
+config.keys = {
+  {
+    key = 'w',
+    mods = 'CMD',
+    action = wezterm.action.CloseCurrentTab { confirm = false },
+  },
+}
 
 if is_macos then
   config.macos_window_background_blur = 20

@@ -12,4 +12,8 @@ if status is-interactive
     if command -q zoxide
         zoxide init fish | source
     end
+
+    if status is-interactive; and not set -q ZELLIJ; and command -q zellij
+        zellij
+    end
 end

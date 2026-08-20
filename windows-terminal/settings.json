@@ -8,7 +8,7 @@
     "defaults": {
       "colorScheme": "Tokyo Night",
       "font": {
-        "face": "JetBrains Mono",
+        "face": "JetBrainsMono Nerd Font",
         "size": 14
       },
       "historySize": 10000,

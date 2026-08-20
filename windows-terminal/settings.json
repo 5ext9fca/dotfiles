@@ -1,0 +1,52 @@
+{
+  "$schema": "https://aka.ms/terminal-profiles-schema",
+  "defaultProfile": "{2c4de342-38b7-51cf-b940-2309a097f518}",
+  "launchMode": "maximized",
+  "alwaysShowTabs": false,
+  "showTabsInTitlebar": false,
+  "profiles": {
+    "defaults": {
+      "colorScheme": "Tokyo Night",
+      "font": {
+        "face": "JetBrains Mono",
+        "size": 14
+      },
+      "historySize": 10000,
+      "opacity": 90,
+      "padding": "8"
+    },
+    "list": [
+      {
+        "commandline": "wsl.exe -d archlinux",
+        "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
+        "hidden": false,
+        "name": "Arch Linux"
+      }
+    ]
+  },
+  "schemes": [
+    {
+      "name": "Tokyo Night",
+      "background": "#1A1B26",
+      "foreground": "#C0CAF5",
+      "black": "#15161E",
+      "red": "#F7768E",
+      "green": "#9ECE6A",
+      "yellow": "#E0AF68",
+      "blue": "#7AA2F7",
+      "purple": "#BB9AF7",
+      "cyan": "#7DCFFF",
+      "white": "#A9B1D6",
+      "brightBlack": "#414868",
+      "brightRed": "#F7768E",
+      "brightGreen": "#9ECE6A",
+      "brightYellow": "#E0AF68",
+      "brightBlue": "#7AA2F7",
+      "brightPurple": "#BB9AF7",
+      "brightCyan": "#7DCFFF",
+      "brightWhite": "#C0CAF5",
+      "cursorColor": "#C0CAF5",
+      "selectionBackground": "#33467C"
+    }
+  ]
+}

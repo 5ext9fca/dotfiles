@@ -28,20 +28,21 @@ On a factory-fresh system, the first run requests Xcode Command Line Tools and t
 Baseline:
 
 - Windows with WinGet
-- A fresh, initialized Arch Linux distribution named `Arch` running on WSL2
+- A fresh, initialized Arch Linux distribution named `archlinux` running on WSL2
 - This repository accessible from Arch WSL
 
 Package managers:
 
 - WinGet on the Windows host
 - Pacman inside the Arch Linux guest
+- rustup for the Rust toolchain and its editor components
 
 ```powershell
 .\install\windows.ps1
 .\install\windows.ps1 -DryRun
 ```
 
-The Windows host contains only WezTerm and `.wezterm.lua`. WinGet installs WezTerm. The script verifies that `Arch` exists, runs under WSL2, and contains `/etc/arch-release`; it then invokes the Arch/Pacman preset inside WSL.
+The Windows host contains Windows Terminal and its `settings.json`. WinGet installs Windows Terminal, and `apply/windows.ps1` synchronizes its configuration with `archlinux` WSL as the default profile. The installer verifies that `archlinux` exists, runs under WSL2, and contains `/etc/arch-release`; it then invokes the Arch/Pacman preset inside WSL.
 
 Fish, Zellij, Helix, Starship, mise, zoxide, Ruff, and the language toolchains are installed inside Arch WSL. Fish becomes the WSL login shell. No native Windows Helix or Zellij configuration is created.
 
@@ -57,7 +58,7 @@ The script reads `/etc/os-release`, rejects non-Arch-based distributions, and re
 ./install/linux.sh --yes
 ```
 
-All dependencies are requested directly through Pacman; no secondary language-package manager is used.
+Pacman manages the system applications and native tools: WezTerm, Fish, Zellij, Helix, Starship, mise, zoxide, Ruff, rustup, Clang, and less. Rustup manages the stable Rust toolchain plus the `rustfmt` and `rust-analyzer` components. Cargo is not used to install applications that are available as Arch packages.
 
 ## Dry-run behavior
 

@@ -89,7 +89,7 @@ run() {
 }
 
 set_default_shell() {
-  local fish_path
+  local current_shell fish_path
   fish_path="$(command -v fish 2>/dev/null || printf '/usr/bin/fish')"
 
   if ! grep -Fqx "$fish_path" /etc/shells; then
@@ -100,8 +100,9 @@ set_default_shell() {
     fi
   fi
 
-  if [[ "${SHELL:-}" != "$fish_path" ]]; then
-    run chsh -s "$fish_path"
+  current_shell="$(getent passwd "$USER" | cut -d: -f7)"
+  if [[ "$(readlink -f "$current_shell")" != "$(readlink -f "$fish_path")" ]]; then
+    run sudo chsh -s "$fish_path" "$USER"
   else
     printf 'fish: already the default shell\n'
   fi
@@ -110,7 +111,7 @@ set_default_shell() {
 install_packages() {
   local packages=(
     fish zellij helix starship mise zoxide ruff
-    rust rust-analyzer clang less
+    rustup clang less
   )
   if (( ! wsl_arch_mode )); then
     packages+=(wezterm)
@@ -118,7 +119,21 @@ install_packages() {
   run sudo pacman -Syu --needed --noconfirm "${packages[@]}"
 }
 
+migrate_rust_analyzer() {
+  if pacman -Qq | grep -Fqx rust-analyzer; then
+    run sudo pacman -R --noconfirm rust-analyzer
+  fi
+}
+
+install_rust_toolchain() {
+  run rustup toolchain install stable \
+    --profile minimal \
+    --component rustfmt,rust-analyzer
+}
+
+migrate_rust_analyzer
 install_packages
+install_rust_toolchain
 
 apply_args=()
 if (( dry_run )); then

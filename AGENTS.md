@@ -15,6 +15,27 @@ There is no build step or centralized test suite. Validate changes with the plat
 
 When available, run `shellcheck install/*.sh` for Bash changes. Parse configuration with its owning tool, such as `fish -n fish/config.fish`, `wezterm ls-fonts`, or `hx --health`.
 
+### Running Windows checks from WSL
+
+When working inside WSL, invoke the Windows scripts with `powershell.exe` and
+pass a Windows-form path resolved by `wslpath` in the WSL shell:
+
+```bash
+windows_apply_path="$(wslpath -w "$PWD/apply/windows.ps1")"
+windows_install_path="$(wslpath -w "$PWD/install/windows.ps1")"
+
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$windows_apply_path" -DryRun
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$windows_install_path" -DryRun
+```
+
+Resolve paths before starting PowerShell: `wslpath` is a Linux executable and
+is not available as a PowerShell cmdlet. Repositories stored in WSL are passed
+to Windows PowerShell as `\\wsl.localhost\<distribution>\...` UNC paths. Use
+`-DryRun` for validation so the Windows Terminal settings and existing backups
+are not modified. A successful full installer dry run should validate the
+Windows configuration, detect the `archlinux` WSL2 distribution, and invoke
+the Linux installer in its non-mutating mode.
+
 ## Coding Style & Naming Conventions
 
 Preserve each format's native conventions: two-space indentation for Lua, four spaces for PowerShell, and readable TOML/KDL formatting. Bash scripts use `#!/usr/bin/env bash`, `set -euo pipefail`, lowercase `snake_case` variables/functions, and quoted expansions. PowerShell uses PascalCase for functions and parameters. Keep configuration declarative and platform checks explicit; do not embed machine-specific absolute paths or secrets.

@@ -3,11 +3,7 @@ local config = wezterm.config_builder()
 
 local mux = wezterm.mux
 
-local target = wezterm.target_triple
-
-local is_windows = target:find("windows") ~= nil
-local is_macos   = target:find("apple") ~= nil
-local is_linux   = target:find("linux") ~= nil
+local is_macos = wezterm.target_triple:find("apple") ~= nil
 
 
 config.font = wezterm.font_with_fallback({
@@ -30,10 +26,6 @@ config.scrollback_lines = 10000
 config.initial_cols = 120
 config.initial_rows = 40
 config.window_close_confirmation = "NeverPrompt"
-
-if is_windows then
-  config.default_domain = os.getenv("WEZTERM_WSL_DOMAIN") or "WSL:Arch"
-end
 
 if is_macos then
   config.macos_window_background_blur = 20

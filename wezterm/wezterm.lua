@@ -1,6 +1,8 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
+local mux = wezterm.mux
+
 local target = wezterm.target_triple
 
 local is_windows = target:find("windows") ~= nil
@@ -15,8 +17,7 @@ config.font_size = 14.0
 config.color_scheme = "Tokyo Night"
 config.window_background_opacity = 0.9
 
-config.enable_tab_bar = true
-config.hide_tab_bar_if_only_one_tab = true
+config.enable_tab_bar = false
 
 config.window_padding = {
   left = 8,
@@ -36,6 +37,11 @@ end
 
 if is_macos then
   config.macos_window_background_blur = 20
+  config.native_macos_fullscreen_mode = true
+  wezterm.on("gui-startup", function(cmd)
+    local tab, pane, window = mux.spawn_window(cmd or {})
+    window:gui_window():toggle_fullscreen()
+  end)
 end
 
 return config
